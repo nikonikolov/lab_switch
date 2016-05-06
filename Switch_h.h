@@ -15,10 +15,10 @@ public:
 	void sedge();
 	void sample();
 
-	bool get_touching();
-	float get_frequency() const;
-	float get_tresh() const;
-	int get_times_touched() const;
+	inline bool get_touching();
+	inline float get_frequency() const;
+	inline float get_tresh() const;
+	inline int get_times_touched() const;
 
 private:
 	InterruptIn swin;
@@ -33,6 +33,22 @@ private:
 	volatile int times_touched;
 	volatile bool touching;
 };
+
+bool Switch_h::get_touching(){
+	return touching;
+}
+
+float Switch_h::get_frequency() const{
+	return frequency;
+}
+
+float Switch_h::get_tresh() const{
+	return treshold;
+}
+
+int Switch_h::get_times_touched() const{
+	return times_touched;
+}
 
 
 #endif

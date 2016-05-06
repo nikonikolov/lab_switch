@@ -26,11 +26,12 @@ void Switch_h::sample(){
     	}
     	if(nsamples==TRESHOLD_SAMPLES){
     		non_touch_freq = non_touch_freq/float(TRESHOLD_SAMPLES-TRESHOLD_MIN+1);
-    		treshold = non_touch_freq-1.5;
+    		//treshold = non_touch_freq-6.5;
+    		treshold = non_touch_freq*0.88;
     	}
     }
 
-    // Determine if touching and take additional action
+    // Determine if touching and increment count for frequency
     else{
     	if(frequency<treshold){
 			if(!touching) times_touched++;
@@ -41,19 +42,5 @@ void Switch_h::sample(){
     }
 }
 
-bool Switch_h::get_touching(){
-	return touching;
-}
 
-float Switch_h::get_frequency() const{
-	return frequency;
-}
-
-float Switch_h::get_tresh() const{
-	return treshold;
-}
-
-int Switch_h::get_times_touched() const{
-	return times_touched;
-}
 

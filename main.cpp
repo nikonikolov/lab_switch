@@ -48,6 +48,16 @@ Switch_h swins[] = {    Switch_h(SW_PIN2),
                         Switch_h(SW_PIN5) 
                     };
 
+/* ============================================ Wave generation data ============================================ */
+
+volatile uint32_t half_period=0;
+inline bool almost_equals(const double& a, const double& b);
+DigitalOut wavegen(p20);
+Ticker wtimer;
+void gen_wave();        // calculates frequency and attaches interrupt
+void toggle_wave();     // function called on interrupt
+
+
 /* ============================================ Snake related data ============================================ */
 
 Ticker snake_t_timer;
@@ -86,7 +96,7 @@ int main() {
     while(1)
     {
         //Has the update flag been set?       
-        /*if (update) {
+        if (update) {
 
             //Clear the display buffer
             gOled1.clearDisplay(); 
@@ -95,11 +105,18 @@ int main() {
             //Clear the update flag
             update = 0;
             for(int i=0; i<SWITCHES; i++){
-                gOled1.printf("%f %u\n", swins[i].get_frequency(), swins[i].get_times_touched());
+                //gOled1.printf("%u", swins[i].get_times_touched());
+                gOled1.printf("%f %f\n", swins[i].get_frequency(), swins[i].get_tresh());
                 //gOled1.printf("%f kHz %f %u\n", swins[i].get_frequency(), swins[i].get_tresh(), swins[i].get_times_touched());
             }
 
-            gOled1.printf("%u\n", dir);
+            for(int i=0; i<SWITCHES; i++){
+                gOled1.printf("%u", swins[i].get_times_touched());
+                //gOled1.printf("%f %u\n", swins[i].get_frequency(), swins[i].get_times_touched());
+                //gOled1.printf("%f kHz %f %u\n", swins[i].get_frequency(), swins[i].get_tresh(), swins[i].get_times_touched());
+            }
+
+            //gOled1.printf("%u\n", dir);
             
             //Copy the display buffer to the display
             gOled1.display();
@@ -107,7 +124,7 @@ int main() {
             //Toggle the alive LED
             alive = !alive;
         }
-        */
+        /*
         if(display_update) {
             //Clear the display buffer
             gOled1.clearDisplay(); 
@@ -124,7 +141,7 @@ int main() {
             //Toggle the alive LED
             alive = !alive;
         }
-        
+        */
     }
 }
 
@@ -144,3 +161,24 @@ void Snake_t_move(){
     display_update = 1;
 }
 
+
+void gen_wave(){
+    uint32_t freqency = swins[0].get_times_touched()*1000 + swins[1].get_times_touched()*100 + 
+                            swins[2].get_times_touched()*10 + swins[3].get_times_touched();
+    //uint32_t half_period = (uint32_t) (1000000/(float)(2*freqency));
+    uint32_t new_half_period = (uint32_t) (500000/freqency);    // in microseconds
+   
+    if(!almost_equals(half_period, new_half_period)){
+        half_period = new_half_period;
+        wtimer.detach();
+        if(half_period) wtimer.attach_us(&toggle_wave, half_period);
+    } 
+}
+
+void toggle_wave(){
+    wavegen=!wavegen;
+}
+
+bool almost_equals(const double& a, const double& b){
+    return fabs(a - b) <= 0.01;
+}
